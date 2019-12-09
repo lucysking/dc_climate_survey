@@ -1,6 +1,0 @@
-"0","d0 %>% "
-"0","  filter(dc_served == ""No"") %>% "
-"0","  count(dc_interest) %>% "
-"0","  mutate("
-"0","    proportion = n / sum(n)"
-"0","  )"

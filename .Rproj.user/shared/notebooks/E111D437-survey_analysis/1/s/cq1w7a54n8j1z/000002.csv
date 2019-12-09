@@ -1,7 +1,7 @@
 "0","# Libraries"
 "0","library(tidyverse)"
 "0","# Files"
-"0","survey_file <- ""~/Box/lucy_king_files/diversity_committee/climate_survey_text_20191206.csv"""
+"0","survey_file <- ""~/Box/lucy_king_share_files/climate_survey_2019-2020/climate_survey_text_20191206.csv"""
 "0","# Viz"
 "0","hist_theme <-"
 "0","  theme_minimal() +"

@@ -1,3 +1,0 @@
-"0","d0_share %>% "
-"0","  filter(!is.na(nobelong_free) & nobelong_free != ""N/A"") %>% "
-"0","  select(nobelong_free)"

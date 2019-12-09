@@ -1,5 +1,0 @@
-"0","d0 %>% "
-"0","  count(minority) %>% "
-"0","  mutate("
-"0","    proportion = n / sum(n)"
-"0","  ) "
