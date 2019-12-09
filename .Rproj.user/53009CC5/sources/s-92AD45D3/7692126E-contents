@@ -977,8 +977,7 @@ d0 %>%
   )
 ```
 
-### Why aren't you interested on serving on the Diversity Committee? Check all that
-apply.
+### Why aren't you interested on serving on the Diversity Committee? Check all that apply.
 ```{r echo = FALSE}
 d0 %>% 
   filter(dc_interest != "Yes") %>% 

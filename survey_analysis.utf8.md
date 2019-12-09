@@ -1027,8 +1027,7 @@ Both male (mode = "moderately") and female (mode = "very"/ "moderately") partici
 <!-- rnb-text-begin -->
 
 
-### Why aren't you interested on serving on the Diversity Committee? Check all that
-apply.
+### Why aren't you interested on serving on the Diversity Committee? Check all that apply.
 
 <!-- rnb-text-end -->
 
