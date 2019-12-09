@@ -1,0 +1,988 @@
+---
+title: "Stanford Psychology Climate Survey: 2018-2019"
+author: "Lucy King"
+output:
+  html_notebook:
+    toc: yes
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+---
+
+
+```{r, include=FALSE}
+# Libraries
+library(tidyverse)
+
+# Files
+survey_file <- "~/Box/lucy_king_files/diversity_committee/climate_survey_text_20191206.csv"
+
+# Viz
+
+hist_theme <-
+  theme_minimal() +
+  theme(
+    axis.text = element_text(size = 14),
+    axis.title = element_text(size = 16)
+  )
+
+hist_facet_theme <-
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 14),
+    axis.text.x = element_text(size = 12, angle = 60, hjust = 1),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 16)
+  ) 
+```
+
+
+# Read in data
+```{r include=FALSE}
+d0 <-
+  read_csv(survey_file) %>% 
+  slice(-1, -2, -3) %>% 
+  rename(
+    d_belong = Q6,
+    a_belong = Q7,
+    judge_race = Q8,
+    judge_class = Q9,
+    judge_gender = Q11,
+    judge_sexual = Q12,
+    judge_health = Q26,
+    bias_belief = Q13,
+    bias_exp = Q24,
+    inclus_stud = Q14,
+    inclus_fac = Q39,
+    belong_free = Q15, 
+    nobelong_free = Q16,
+    issues = Q17,
+    actions = Q18,
+    share = Q19,
+    gender_haras = Q27,
+    gender_inclus = Q28,
+    gender_speak = Q29,
+    gender_fac = Q30,
+    gender_fac_id = Q31,
+    dc_served = Q34,
+    paths_volunt = Q35,
+    dc_interest = Q36,
+    dc_no_why = Q38,
+    dc_no_other = Q38_7_TEXT,
+    position = Q40,
+    gender = Q20,
+    minority = Q21
+  ) %>% 
+  mutate(
+    minority_text = case_when(
+      minority == "Yes" ~ "Minority",
+      minority == "No" ~ "Non-minority",
+      TRUE ~ "No response"
+    ),
+    minority_text = factor(
+      minority_text,
+      levels = c("Non-minority", "Minority", "No response")
+    ),
+    gender_text = case_when(
+      gender == "Female" ~ "Female",
+      gender == "Male" ~ "Male",
+      TRUE ~ "No response"
+    )
+  ) %>% 
+  # several false starts or mostly incomplete; removing these
+  filter(!is.na(judge_race))
+```
+
+# Goal
+
+The goal of the Psychology Department Climate Survey is provide the department with insights into feelings of inclusion and equality (or lack thereof) within the graduate student, postdoc, and research staff population. This information will inform efforts to cultivate an inclusive community that values diverse questions, viewpoints, approaches, and participant samples to foster ingenuity, challenge biases, and promote intellectual growth. Further, this information will inform possible actions to foster individual and collective wellbeing, which is requisite for academic success. 
+
+# Method
+
+In Summer 2019, graduate students, postdoctoral fellows, and research staff were emailed an online link to complete the Climate Survey (a PDF of the survey is available on the Psychology Graduate Students Google Drive in the "Climate Survey" folder). 
+
+The survey included questions about feelings of belonging uncertainty, stereotype threat (i.e., concerns about negative judgement due to  identity), contextual threat (i.e., beliefs and experiences of bias and discrimination), beliefs about collective action (i.e., beliefs that others value increasing inclusivity), and gender dynamics (i.e., concerns about issues surrounding gender identity and harassment). In addition, we collected information concerning participation in the Diversity Committee (i.e., past participation and interest). We asked minimal demographics questions to avoid identifiability within the relatively small sample, emphasizing that these questions were optional.
+
+# Participants
+
+```{r echo = FALSE}
+d0 %>% 
+  count(position) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) 
+```
+
+```{r echo = FALSE}
+d0 %>% 
+  count(gender) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) 
+```
+
+```{r echo = FALSE}
+d0 %>% 
+  count(minority) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) 
+```
+
+We received 60 response to the survey. We included optional questions about position in the department (graduate student, postdoc, research staff), gender identity (female, male, other/non-binary), and identity as an underrepresented minority. Among participants who responded, the majority (N = 27) were graduate students, followed by research staff (N = 11), and postdoctoral fellows (N = 7). In terms of gender, approximately twice as many participants identified as female (N = 30) compared to male (N = 16), indicating an imbalance in participation, although it is possible that a larger proportion of the group who did not respond to the demographic questions was male. No one identified their gender as "other/non-binary." Finally, 18 participants identified as an underrepresented minority. 
+
+# Results 
+
+## Belonging uncertainty
+
+### When you think about the psychology department, how often, if ever, do you wonder: "maybe I don't belong here?"
+
+```{r echo = FALSE}
+## overall
+count_d_belong <-
+  d0 %>% 
+  count(d_belong) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(desc(n))
+
+count_d_belong
+
+count_d_belong %>% 
+  mutate(
+    d_belong = factor(
+      d_belong,
+      levels = c("Never", "Hardly ever", "Sometimes", "Frequently", "Always")
+    )
+  ) %>% 
+  ggplot(aes(d_belong, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_theme +
+  labs(
+    x = "In the psychology department, how often do you wonder:\n \"maybe I don't belong here?\""
+  )
+```
+
+```{r echo = FALSE}
+## by minority status 
+count_d_belong_min <- 
+  d0 %>% 
+  count(minority_text, d_belong) %>% 
+  group_by(minority_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(minority_text, desc(n))
+
+count_d_belong_min
+
+count_d_belong_min %>% 
+  mutate(
+    d_belong = factor(
+      d_belong,
+      levels = c("Never", "Hardly ever", "Sometimes", "Frequently", "Always")
+    )
+  ) %>% 
+  ggplot(aes(d_belong, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "In the psychology department, how often do you wonder:\n \"maybe I don't belong here?\""
+  ) +
+  facet_grid(.~minority_text)
+```
+
+### When you think about the academic research community in your field, how often, if ever, do you wonder: "maybe I don't belong here?"
+
+```{r echo = FALSE}
+# overall
+count_a_belong <-
+  d0 %>% 
+  count(a_belong) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(desc(n))
+
+count_a_belong 
+
+count_a_belong %>% 
+  mutate(
+    a_belong = factor(
+      a_belong,
+      levels = c("Never", "Hardly ever", "Sometimes", "Frequently", "Always")
+    )
+  ) %>% 
+  ggplot(aes(a_belong, proportion)) +
+   geom_col(aes(fill = n)) +
+  theme_minimal() +
+  hist_theme +
+  labs(
+    x = "In academia, how often do you wonder:\n \"maybe I don't belong here?\""
+  )
+```
+
+```{r echo = FALSE}
+## by minority status 
+count_a_belong_min <-
+  d0 %>% 
+  count(minority_text, a_belong) %>% 
+  group_by(minority_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(minority_text, desc(n))
+
+count_a_belong_min
+
+count_a_belong_min %>% 
+  mutate(
+    a_belong = factor(
+      a_belong,
+      levels = c("Never", "Hardly ever", "Sometimes", "Frequently", "Always")
+    )
+  ) %>% 
+  ggplot(aes(a_belong, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "In academia, how often do you wonder:\n \"maybe I don't belong here?\""
+  ) +
+  facet_grid(.~minority_text)
+```
+
+When participants were asked about the frequency with which they wondered "maybe I don't belong" in the Psychology Department and in academia generally, the modal response was "sometimes". Indeed, 50% of students endorsed "sometimes." 
+
+When thinking about the Psychology Department, very few participants reported "never" feeling concerned about belonging (3%). Therefore, having at least some uncertainty about belonging is a typical experience in the department. A greater percentage of participants who identified as underrepresented minorities reported "sometimes" or "frequently" experiencing belonging uncertainty than did students who did not identify as minorities (79% vs. 59%), although the mode for both groups was "sometimes." 
+
+When thinking about academia, no one reported "never" or "always" feeling concerned about belonging. Instead, one third of participants reported "frequently" feeling concerned. Distributions were similar across students who did and did not endorse minority status. 
+
+## Stereotype threat
+
+###In the psychology department, to what extent do you worry that people negatively judge youbased on what they think about your racial or ethnic group?
+
+```{r echo = FALSE}
+# overall
+count_judge_race <-
+  d0 %>% 
+  count(judge_race) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(desc(n))
+
+count_judge_race
+
+count_judge_race %>% 
+  mutate(
+    judge_race = factor(
+      judge_race,
+      levels = c("Not at all", "Somewhat", "Moderately", "A lot", "Extremely")
+    )
+  ) %>% 
+  ggplot(aes(judge_race, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_theme +
+  labs(
+    x = "To what extent do you worry that people negatively judge you\nbased on your racial or ethnic group?"
+  )
+```
+
+```{r echo = FALSE}
+# by minority status
+count_judge_race_min <-
+  d0 %>% 
+  count(minority_text, judge_race) %>% 
+  group_by(minority_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(minority_text, desc(n))
+
+count_judge_race_min
+
+count_judge_race_min %>% 
+  mutate(
+    judge_race = factor(
+      judge_race,
+      levels = c("Not at all", "Somewhat", "Moderately", "A lot", "Extremely")
+    )
+  ) %>% 
+  ggplot(aes(judge_race, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "To what extent do you worry that people negatively judge you\nbased on your racial or ethnic group?"
+  ) +
+  facet_grid(.~minority_text)
+
+```
+When participants were asked to what extent they worried that people negatively judged them based on their race or ethnicity, the majority responded "not at all" (60%). Distributions were somewhat different based on whether participants identified as underrepresented minorities. Specifically, fewer minority participants responded "not at all" than did non-minority participants (45%, mode = "somewhat" vs. 85%, mode = "not at all"). 
+
+### In the psychology department, to what extent do you worry that people negatively judge youbased on what they think about your social class or background?
+
+```{r echo = FALSE}
+# overall
+count_judge_class <-
+  d0 %>% 
+  count(judge_class) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(desc(n))
+
+count_judge_class
+
+count_judge_class %>% 
+  mutate(
+    judge_class = factor(
+      judge_class,
+      levels = c("Not at all", "Somewhat", "Moderately", "A lot", "Extremely")
+    )
+  ) %>% 
+  ggplot(aes(judge_class, proportion)) +
+  geom_col(aes(fill = n)) +
+  hist_theme +
+  labs(
+    x = "To what extent do you worry that people negatively judge you\nbased on social class?"
+  ) 
+```
+
+When participants were asked to what extent they worry that people negatively judge them based on their social class or background, 40% responded that they worried at least "somewhat."
+
+### In the psychology department, to what extent do you worry that people negatively judge you based on what they think about your gender identity?
+```{r echo = FALSE}
+# overall
+count_judge_gender <-
+  d0 %>% 
+  count(judge_gender) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(desc(n))
+
+count_judge_gender
+
+count_judge_gender %>% 
+  mutate(
+    judge_gender = factor(
+      judge_gender,
+      levels = c("Not at all", "Somewhat", "Moderately", "A lot", "Extremely")
+    )
+  ) %>% 
+  ggplot(aes(judge_gender, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_theme +
+  labs(
+    x = "To what extent do you worry that people negatively judge you\nbased on gender?"
+  ) 
+```
+
+```{r echo = FALSE}
+# by gender 
+count_judge_gender_gender <-
+  d0 %>% 
+  count(gender_text, judge_gender) %>% 
+  group_by(gender_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(gender_text, desc(n))
+
+count_judge_gender_gender
+
+count_judge_gender_gender %>% 
+  mutate(
+    judge_gender = factor(
+      judge_gender,
+      levels = c("Not at all", "Somewhat", "Moderately", "A lot", "Extremely")
+    )
+  ) %>% 
+  ggplot(aes(judge_gender, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "To what extent do you worry that people negatively judge you\nbased on gender?"
+  ) +
+  facet_grid(.~gender_text)
+```
+
+When participants were asked to what extent they worry that people negatively judge them based on their gender, 57% responded "not at all," followed by "somewhat" (32%). However, responses differed based on whether participants identified as male or female. Whereas most male participants worried "not at all"" (69%), most female participants worried at least "somewhat" (60%).
+
+### In the psychology department, to what extent do you worry that people negatively judge you based on what they think about your sexual orientation?
+```{r echo = FALSE}
+count_judge_sexual <-
+  d0 %>% 
+  count(judge_sexual) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(desc(n))
+
+count_judge_sexual 
+
+count_judge_sexual %>% 
+  mutate(
+    judge_sexual = factor(
+      judge_sexual,
+      levels = c("Not at all", "Somewhat", "Moderately", "A lot", "Extremely")
+    )
+  ) %>% 
+  ggplot(aes(judge_sexual, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_theme +
+  labs(
+    x = "To what extent do you worry that people negatively judge you\nbased on sexual orientation?"
+  ) 
+```
+
+When participants were asked to what extent they worry that people negatively judge them based on the sexual orientation, the vast majority (92%) responded "not at all."
+
+### In the psychology department, to what extent do you worry that people negatively judge youbased on what they think about your mental or physical health?
+```{r echo = FALSE}
+count_judge_health <-
+  d0 %>% 
+  count(judge_health) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(desc(n))
+
+count_judge_health
+
+count_judge_health %>% 
+  mutate(
+    judge_health = factor(
+      judge_health,
+      levels = c("Not at all", "Somewhat", "Moderately", "A lot", "Extremely")
+    )
+  ) %>% 
+  ggplot(aes(judge_health, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_theme +
+  labs(
+    x = "To what extent do you worry that people negatively judge you\nbased on mental/physical health?"
+  ) 
+```
+
+When asked to what extent they worry that people negatively judge them based on their mental or physical health, the modal response was "not at all." However, 52% of students worried at least "somewhat," with 10% reporting they worried "moderately," and 10% reporting they worried "a lot."
+
+## Contextual threat
+
+### To what extent do you believe underrepresented graduate students (e.g., racial, ethnic, sexual, gender identity, religious minorities, social class, mental health, disability, etc.) experience bias, discrimination, or other unfair treatment in the psychology department?
+```{r echo = FALSE}
+# overall
+count_bias_belief <-
+  d0 %>% 
+  count(bias_belief) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(desc(n))
+
+count_bias_belief
+
+count_bias_belief %>% 
+  mutate(
+    bias_belief = factor(
+      bias_belief,
+      levels = c("Not at all", "Somewhat", "Moderately", "A lot", "Extremely")
+    )
+  ) %>% 
+  ggplot(aes(bias_belief, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_theme +
+  labs(
+    x = "To what extent do you BELIEVE underrepresented students\nexperience bias or discrimination?"
+  ) 
+```
+
+```{r echo = FALSE}
+# by minority status
+count_bias_belief_min <-
+  d0 %>% 
+  count(minority_text, bias_belief) %>% 
+  group_by(minority_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(minority_text, desc(n))
+
+count_bias_belief_min
+
+count_bias_belief_min %>% 
+  mutate(
+    bias_belief = factor(
+      bias_belief,
+      levels = c("Not at all", "Somewhat", "Moderately", "A lot", "Extremely")
+    )
+  ) %>% 
+  ggplot(aes(bias_belief, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "To what extent do you BELIEVE underrepresented students\nexperience bias or discrimination?"
+  ) +
+  facet_grid(.~minority_text)
+
+```
+
+```{r echo = FALSE}
+# by minority status
+count_bias_belief_gen <-
+  d0 %>% 
+  count(gender_text, bias_belief) %>% 
+  group_by(gender_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(gender_text, desc(n))
+
+count_bias_belief_gen
+
+count_bias_belief_gen %>% 
+  mutate(
+    bias_belief = factor(
+      bias_belief,
+      levels = c("Not at all", "Somewhat", "Moderately", "A lot", "Extremely")
+    )
+  ) %>% 
+  ggplot(aes(bias_belief, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "To what extent do you BELIEVE underrepresented students\nexperience bias or discrimination?"
+  ) +
+  facet_grid(.~gender_text)
+
+```
+
+### In the past year, how often have you experienced or witnessed bias, discrimination, or other unfair treatment because of your identity or the identity of another person in the psychology department?
+
+```{r echo = FALSE}
+count_bias_exp <-
+  d0 %>% 
+  count(bias_exp) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(desc(n))
+
+count_bias_exp
+
+count_bias_exp %>% 
+  mutate(
+    bias_exp = factor(
+      bias_exp,
+      levels = c(
+        "Never", 
+        "Less than once a month", 
+        "Every month", 
+        "Every week", 
+        "Every day"
+      ),
+      labels = c(
+        "Never",
+        "<1x month",
+        "Monthly",
+        "Weekly",
+        "Daily"
+      )
+    )
+  ) %>% 
+  ggplot(aes(bias_exp, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_theme +
+  labs(
+    x = "In past year, how often have you\nEXPERIENCED bias or discrimination?"
+  ) 
+```
+
+```{r echo = FALSE}
+count_bias_exp_min <-
+  d0 %>% 
+  count(minority_text, bias_exp) %>% 
+  group_by(minority_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(minority_text, desc(n))
+
+count_bias_exp_min
+
+count_bias_exp_min %>% 
+  mutate(
+    bias_exp = factor(
+      bias_exp,
+      levels = c(
+        "Never", 
+        "Less than once a month", 
+        "Every month", 
+        "Every week", 
+        "Every day"
+      ),
+      labels = c(
+        "Never",
+        "<1x month",
+        "Monthly",
+        "Weekly",
+        "Daily"
+      )
+    )
+  ) %>% 
+  ggplot(aes(bias_exp, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "In past year, how often have you\nEXPERIENCED or WITNESSED bias or discrimination?"
+  ) +
+  facet_grid(.~minority_text)
+```
+
+```{r echo = FALSE}
+count_bias_exp_gender <-
+  d0 %>% 
+  count(gender_text, bias_exp) %>% 
+  group_by(gender_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(gender_text, desc(n))
+
+count_bias_exp_gender
+
+count_bias_exp_gender %>% 
+  mutate(
+    bias_exp = factor(
+      bias_exp,
+      levels = c(
+        "Never", 
+        "Less than once a month", 
+        "Every month", 
+        "Every week", 
+        "Every day"
+      ),
+      labels = c(
+        "Never",
+        "<1x month",
+        "Monthly",
+        "Weekly",
+        "Daily"
+      )
+    )
+  ) %>% 
+  ggplot(aes(bias_exp, proportion)) +
+  geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "In past year, how often have you\nEXPERIENCED bias or discrimination?"
+  ) +
+  facet_grid(.~gender_text)
+```
+When asked to what extent they _believe_ underrepresented students experience bias or discrimination, the modal response was "somewhat." Distributions were similar based on minority and gender identity. 
+
+When asked how often they had _experienced_ or _witnessed_ bias, discrimination, or unfair treatment, approximately half reported "less than once a month" or more often (mode = "never"). When comparing minority and non-minority participants, a _larger_ percentage of minority participants reported experiencing bias or discrimination "never" than did non-minority participants (50%, mode = "never" vs. 37%, mode = "less than once a month"). When comparing female and male participants,  participants who identified as female experienced or witness bias more frequently than did male participants (63%., mode = "less than once a month" vs. 44%, mode = "never"). 
+
+## Collective action
+
+### I believe that most students/postdocs in the psychology department genuinely want to make Stanford Psychology a more inclusive place with regard to race, class, and gender.
+
+```{r echo = FALSE}
+d0_gather_inclus <-
+  d0 %>% 
+  gather(Q, value, inclus_stud, inclus_fac)
+
+count_inclus <-
+  d0_gather_inclus %>% 
+  count(Q, value) %>% 
+  group_by(Q) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(Q, desc(n)) %>% 
+  ungroup()
+
+count_inclus
+
+count_inclus %>% 
+  filter(!is.na(value)) %>% 
+  mutate(
+    value = factor(
+      value,
+      levels = c(
+        "Strongly disagree", 
+        "Disagree", 
+        "Somewhat disagree", 
+        "Neither agree nor disagree", 
+        "Somewhat agree",
+        "Agree",
+        "Strongly agree"
+      )
+    ),
+    Q = factor(
+      Q,
+      levels = c(
+        "inclus_stud",
+        "inclus_fac"
+      ),
+      labels = c(
+        "Students",
+        "Faculty"
+      )
+    )
+  ) %>% 
+  ggplot(aes(value, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "I believe that this group (students, faculty) wants\nto make the department more inclusive"
+  ) +
+  facet_grid(.~Q)
+```
+
+When participants were asked to what extent they agreed that most _students and postdoctoral fellows_ want to make the psychology department a more inclusive place, 95% at least "somewhat" agreed (mode = "agree"). When asked to what extent _faculty_ want to make the department a more inclusive place, the distribution of responses was somewhat different. Specifically, a smaller percentage of participants at least "somewhat" agreed (80%), although the mode was also "agree."
+
+## Open-ended questions
+
+### In the past year, when was a time you felt like you belonged in the department? Please briefly describe the situation and what made you feel like you belong.
+```{r echo = FALSE}
+d0 %>% 
+  count(share)
+```
+
+! Note that 4 participants do not want their free responses shared.
+
+### In the past year, when was a time you felt like you belonged in the department? Please briefly describe the situation and what made you feel like you belong.
+
+```{r echo = FALSE}
+d0_share <- 
+  d0 %>% 
+  filter(share != "No")
+
+d0_share %>% 
+  count(!is.na(belong_free))
+
+d0 %>% 
+  filter(!is.na(belong_free)) %>% 
+  select(belong_free)
+```
+
+### In the past year, when was a time you felt like you didn't belong in the department? Please briefly describe the situation and what made you feel like you didn't belong.
+
+```{r echo = FALSE}
+d0_share %>% 
+  count(!is.na(nobelong_free) & nobelong_free != "N/A")
+
+d0_share %>% 
+  filter(!is.na(nobelong_free) & nobelong_free != "N/A") %>% 
+  select(nobelong_free)
+```
+
+### In your opinion, what are the biggest issues in regards to climate and issues of diversity in the department? Please provide up to 3 concrete ideas/examples.
+```{r echo = FALSE}
+d0 %>% 
+  count(!is.na(issues) & issues != "N/A")
+
+d0 %>% 
+  filter(!is.na(issues) & issues != "N/A") %>% 
+  select(issues) 
+```
+
+### In your opinion, what are the possible actions that can be taken to improve the climate and issues of diversity in the department? Please provide up to 3 concrete ideas/examples.
+```{r echo = FALSE}
+d0 %>% 
+  count(!is.na(actions) & actions != "N/A")
+
+d0 %>% 
+  filter(!is.na(actions) & actions != "N/A") %>% 
+  select(actions) 
+```
+
+## Gender dynamics
+
+### How concerned are you about safety from sexual harassment and assault in the psychology department, including feeling safe in the building at night?
+```{r echo = FALSE}
+count_gender_haras <-
+  d0 %>% 
+  count(gender_text, gender_haras) %>% 
+  group_by(gender_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(gender_text, desc(n)) %>% 
+  ungroup()
+
+count_gender_haras
+
+count_gender_haras %>% 
+  filter(!is.na(gender_haras)) %>% 
+  mutate(
+    gender_haras = factor(
+      gender_haras,
+      levels = c(
+        "Not at all", 
+        "A little", 
+        "Moderately", 
+        "Very", 
+        "Extremely"
+      )
+    )
+  ) %>% 
+  ggplot(aes(gender_haras, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "Concerned about safety from sexual harassment/assault,\n including feeling safe in the building at night?"
+  ) +
+  facet_grid(.~gender_text)
+```
+
+Compared to participants who identified as male, participants who identified as female reported greater concern about safety from sexual harassment and assault, including feeling safe in the building at night. Specifically, 66% of female participants reported feeling at least "a little" concerned, compared to 31% of male participants.  
+
+### How concerned are you about fostering inclusion of transgender and other gender identities in the psychology department, including encouraging pronoun sharing and adding more gender neutral bathrooms?
+```{r echo = FALSE}
+count_gender_inclus <-
+  d0 %>% 
+  count(gender_text, gender_inclus) %>% 
+  group_by(gender_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(gender_text, desc(n)) %>% 
+  ungroup()
+
+count_gender_inclus
+
+count_gender_inclus %>% 
+  filter(!is.na(gender_inclus)) %>% 
+  mutate(
+    gender_inclus = factor(
+      gender_inclus,
+      levels = c(
+        "Not at all", 
+        "A little", 
+        "Moderately", 
+        "Very", 
+        "Extremely"
+      )
+    )
+  ) %>% 
+  ggplot(aes(gender_inclus, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "Concerned about fostering inclusion of diverse gender identities,\nincluding pronoun sharing and more gender-neutral bathrooms?"
+  ) +
+  facet_grid(.~gender_text)
+```
+Both male and female participants are concerned about fostering inclusion of transgender and other gender identities in the psychology department. However, female participants reported greater concern, such that 90% were at least "a little" concerned (mode = "very"), compared to male participants (75%, mode = moderately).
+
+### How concerned are you about imbalance across gender identities in participation in seminars and talks in the psychology department (e.g., asking and answering questions and making comments)?
+```{r echo = FALSE}
+count_gender_speak <-
+  d0 %>% 
+  count(gender_text, gender_speak) %>% 
+  group_by(gender_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(gender_text, desc(n)) %>% 
+  ungroup()
+
+count_gender_speak
+
+count_gender_speak %>% 
+  filter(!is.na(gender_speak)) %>% 
+  mutate(
+    gender_speak = factor(
+      gender_speak,
+      levels = c(
+        "Not at all", 
+        "A little", 
+        "Moderately", 
+        "Very", 
+        "Extremely"
+      )
+    )
+  ) %>% 
+  ggplot(aes(gender_speak, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "Concerned about imbalance in participation in seminars and talks,\n including asking questions/making comments?"
+  ) +
+  facet_grid(.~gender_text)
+```
+
+Both male (mode = "very") and female (mode = "very"/"moderately") participants are concerned about imbalance based on gender in participation in seminars and talks
+
+### How concerned are you about faculty in the psychology department who implicitly or explicitly foster lack of belonging, power inequities, or participation imbalances among students with different gender identities?
+```{r echo = FALSE}
+count_gender_fac <-
+  d0 %>% 
+  count(gender_text, gender_fac) %>% 
+  group_by(gender_text) %>% 
+  mutate(
+    proportion = n / sum(n)
+  ) %>% 
+  arrange(gender_text, desc(n)) %>% 
+  ungroup()
+
+count_gender_fac
+
+count_gender_fac %>% 
+  filter(!is.na(gender_fac)) %>% 
+  mutate(
+    gender_fac = factor(
+      gender_fac,
+      levels = c(
+        "Not at all", 
+        "A little", 
+        "Moderately", 
+        "Very", 
+        "Extremely"
+      )
+    )
+  ) %>% 
+  ggplot(aes(gender_fac, proportion)) +
+   geom_col(aes(fill = n)) +
+  hist_facet_theme +
+  labs(
+    x = "Concerned about faculty who foster lack of belonging\npower inequities, or participation imbalances?"
+  ) +
+  facet_grid(.~gender_text)
+```
+
+Both male (mode = "moderately") and female (mode = "very"/ "moderately") participants are concerned about faculty who foster imbalance among students based on gender identity. 
+
+## Participation in the Diversity Committee
+
+### Have you volunteered at Paths to PhD?
+```{r echo = FALSE}
+d0 %>% 
+  count(paths_volunt) %>% 
+  mutate(
+    proportion = n / sum(n)
+  )
+```
+
+### Would you be interested in serving on the Diversity Committee in the future?
+```{r echo = FALSE}
+d0 %>% 
+  filter(dc_served == "No") %>% 
+  count(dc_interest) %>% 
+  mutate(
+    proportion = n / sum(n)
+  )
+```
+
+### Why aren't you interested on serving on the Diversity Committee? Check all that
+apply.
+```{r echo = FALSE}
+d0 %>% 
+  filter(dc_interest != "Yes") %>% 
+  select(dc_no_why) %>% 
+  arrange(dc_no_why) 
+```
+Among participants who responded when asked about participation in Paths to PhD, the majority of student had participated (47%), suggesting this event has been successful in recruiting volunteers. Among participants who had not yet served on the Diversity Committee, 37% reported they were interested in serving in the future. Of the 59% who responded they were not interested, the model explanation was "I am too busy to serve on committees."

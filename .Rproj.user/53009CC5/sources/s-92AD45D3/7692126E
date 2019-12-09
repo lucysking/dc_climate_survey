@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1575657636551.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1524245448",
+    "id" : "7692126E",
+    "lastKnownWriteTime" : 1575858375,
+    "last_content_update" : 1575858375521,
+    "path" : "~/Desktop/dc_climate_survey/survey_analysis.Rmd",
+    "project_path" : "survey_analysis.Rmd",
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "cursorPosition" : "960,41",
+        "scrollLine" : "987",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

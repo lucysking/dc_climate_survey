@@ -1,0 +1,2 @@
+"0","d0_share %>% "
+"0","  count(!is.na(nobelong_free) & nobelong_free != ""N/A"")"

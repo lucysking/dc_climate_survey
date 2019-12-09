@@ -1,0 +1,8 @@
+"0","count_judge_sexual <-"
+"0","  d0 %>% "
+"0","  count(judge_sexual) %>% "
+"0","  mutate("
+"0","    proportion = n / sum(n)"
+"0","  ) %>% "
+"0","  arrange(desc(n))"
+"0","count_judge_sexual "

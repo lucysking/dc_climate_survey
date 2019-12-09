@@ -1,0 +1,5 @@
+"0","d0_share <- "
+"0","  d0 %>% "
+"0","  filter(share != ""No"")"
+"0","d0_share %>% "
+"0","  count(!is.na(belong_free))"
